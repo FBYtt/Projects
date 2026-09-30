@@ -45,8 +45,8 @@ class Ship:
         self.y = y
         self.width = width
         self.height = height
-        self.vel_x = 25
-        self.vel_y = 12
+        self.vel_x = 20
+        self.vel_y = 20
         self.up_key = up_key
         self.down_key = down_key
         self.left_key = left_key
