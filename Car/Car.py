@@ -80,6 +80,7 @@ font = pg.font.SysFont("comicsans", int(small_font))
 
 ship = Ship(screen_width / 2, screen_height / 2, 100, 200, pg.K_w, pg.K_s, pg.K_a, pg.K_d)
 running = True
+paused = False
 while running:
     seconds += clock.tick(60) / 1000
     # print(seconds)
@@ -89,22 +90,28 @@ while running:
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_BACKSPACE:
                 running = False
+            if event.key == pg.K_ESCAPE:
+                paused = not paused
 
-    screen.fill((0, 0, 0))
-    if seconds >= 0.1:
-        for i in range(2):
-            item_list.append(Items(20, 40, (100, 100, 100)))
+    if not paused:
+        screen.fill((0, 0, 0))
+        if seconds >= 0.1:
+            for i in range(2):
+                item_list.append(Items(20, 40, (100, 100, 100)))
 
-        seconds = 0
-    for item in item_list[:]:
-        item.spawn(screen)
-        if item.check_collision(ship):
-            item_list.remove(item)
-            score1 += 1
+            seconds = 0
+        for item in item_list[:]:
+            item.spawn(screen)
+            if item.check_collision(ship):
+                item_list.remove(item)
+                score1 += 1
 
-    ship.move()
-    ship.draw(screen)
-    score_left_text = font.render(str(score1), True, (255, 255, 255))
-    screen.blit(score_left_text, (50 * screen_scale_x, 10 * screen_scale_y))
-    # print(items_list)
+        ship.move()
+        ship.draw(screen)
+        score_left_text = font.render(str(score1), True, (255, 255, 255))
+        screen.blit(score_left_text, (50 * screen_scale_x, 10 * screen_scale_y))
+    if paused:
+        paused_text = font.render("PAUSED", True, (255, 255, 255))
+        screen.blit(paused_text, (50 * screen_scale_x, screen_scale_y))
+
     pg.display.flip()
