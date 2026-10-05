@@ -27,9 +27,9 @@ class Monster:
         self.y = y
         self.rect = pg.Rect(self.x,self.y,self.width,self.height)
     def move(self):
-        if self.y >= screen_height / 2 and self.x == 200:
+        if self.y >= screen_height / 3 and self.x == 200:
             self.y -= self.speed
-        if self.y <= screen_height / 2 and self.x <= screen_width - 200:
+        if self.y <= screen_height / 3 and self.x <= screen_width - 200:
             self.x += self.speed
         if self.x >= screen_width - 200 - self.width and self.y < screen_height:
             self.y += self.speed

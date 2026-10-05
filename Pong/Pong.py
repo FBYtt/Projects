@@ -19,8 +19,8 @@ score_left = 0
 score_right = 0
 game_state = "menu"
 paddle_width = 20 * scale_x
-paddle_height = 150 * scale_y
-ball_radious = 17 * ((scale_x + scale_y) / 2)
+paddle_height = 250 * scale_y
+ball_radius = 17 * ((scale_x + scale_y) / 2)
 ball_outline = 3 * ((scale_x + scale_y) / 2)
 small_font = 30 * ((scale_x + scale_y) / 2)
 big_font = 220 * ((scale_x + scale_y) / 2)
@@ -35,16 +35,16 @@ class Ball():
     def __init__(self, x, y,vel_x, vel_y):
         self.x = x
         self.y = y
-        self.width = ball_radious
-        self.height = ball_radious
+        self.width = ball_radius
+        self.height = ball_radius
         self.vel_x = vel_x
         self.vel_y = vel_y
     def move(self):
         self.x += self.vel_x * dt / 1000
         self.y += self.vel_y * dt / 1000
     def draw(self, screen):
-        pg.draw.circle(screen, (255,255,255), (int(self.x), int(self.y)), ball_radious)
-        pg.draw.circle(screen, (57, 255, 20), (int(self.x), int(self.y)), ball_radious,int(ball_outline))
+        pg.draw.circle(screen, (255,255,255), (int(self.x), int(self.y)), ball_radius)
+        pg.draw.circle(screen, (57, 255, 20), (int(self.x), int(self.y)), ball_radius,int(ball_outline))
 
     def check_collision(self,paddle_left, paddle_right,score_left,score_right):
         if self.x >= screen_width - self.width - paddle_right.width and self.y + self.height >= paddle_right.y and self.y <= paddle_right.y + paddle_right.height and self.vel_x > 0:
