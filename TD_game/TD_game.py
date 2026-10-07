@@ -11,8 +11,10 @@ screen = pg.display.set_mode((screen_width, screen_height), pg.RESIZABLE)
 clock = pg.time.Clock()
 
 minions = []
+bullets = []
 seconds = 0
 lives = 3
+shoot_timer = 0
 
 
 
@@ -36,24 +38,51 @@ class Monster:
     def draw(self,screen):
         pg.draw.rect(screen, self.colour, (self.x, self.y, self.width, self.height))
 
-    class Tower():
-        def __init__(self,x,y):
-            self.width = 30
-            self.height = 30
-            self.x = x
-            self.y = y
-    class Bullet:
-        def __init__(self,x,y,vel_x,vel_y,damage):
-            self.vel_x = vel_x
-            self.vel_y = vel_y
-            self.damage = damage
-            self.x = x
-            self.y = y
-            self.width = 5
-            self.height = 5
-            self.rect = pg.Rect(self.x,self.y,self.width,self.height)
+
+class Tower():
+    def __init__(self,x,y,colour,shoot_speed):
+        self.width = 50
+        self.height = 50
+        self.x = x
+        self.y = y
+        self.colour = colour
+        self.shoot_speed = shoot_speed
+    def draw(self,screen):
+        pg.draw.rect(screen,self.colour, (self.x, self.y, self.width, self.height))
 
 
+class Bullet:
+    def __init__(self,x,y,vel_x,vel_y,damage,colour):
+        self.vel_x = vel_x
+        self.vel_y = vel_y
+        self.damage = damage
+        self.colour = colour
+        self.x = x
+        self.y = y
+        self.width = 5
+        self.height = 5
+        self.rect = pg.Rect(self.x,self.y,self.width,self.height)
+    def move(self,minion):
+        if self.y > minion.y + minion.height / 2:
+            self.y -= self.vel_y
+        if self.y < minion.y + minion.height / 2:
+            self.y += self.vel_y
+        if self.x > minion.x + minion.width / 2:
+            self.x -= self.vel_x
+        if self.x < minion.x + minion.width / 2:
+            self.x += self.vel_x
+    def draw(self,screen):
+        pg.draw.circle(screen,self.colour, (self.x, self.y), self.width, self.height)
+    def check_collision(self,minion):
+        if self.rect.colliderect(minion.rect):
+            minion.health -= self.damage
+            return True
+        else:
+            return False
+
+
+tower = Tower(screen_width/2,screen_height/1.2,(255,255,255),5)
+bullet = Bullet(screen_width/2,screen_height/1.2,5,5,10,(0,0,0))
 running = True
 paused = False
 while running:
@@ -69,10 +98,13 @@ while running:
                 minions.append(Monster(200,100,100,7,screen_height))
             if event.key == pg.K_DELETE:
                 pass
-
+    tower.draw(screen)
     if not paused:
-        screen.fill((50, 0, 0))
         seconds += clock.tick(60) / 1000
+        shoot_timer += clock.tick(60) / 1000
+        screen.fill((50, 0, 0))
+        tower.draw(screen)
+
         if seconds >= 1:
             minions.append(Monster(200, 100, 100, 7, screen_height))
             seconds = 0
@@ -83,7 +115,19 @@ while running:
             minion.draw(screen)
             if minion.x >= screen_width - 200 - minion.width and minion.y >= screen_height:
                 minions.remove(minion)
-                lives -= 1
+
+        if len(minions) > 0 and shoot_timer > 1:
+            bullets.append(Bullet(tower.x,tower.y,15,15,10,(0,0,0)))
+            shoot_timer = 0
+        else:
+            pass
+        for bullet in bullets[:]:
+            bullet.move(minions[0])
+            bullet.draw(screen)
+            if bullet.check_collision(minions[0]):
+                bullets.remove(bullet)
+
+
 
 
 
