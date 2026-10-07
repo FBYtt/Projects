@@ -33,12 +33,25 @@ class Monster:
             self.x += self.speed
         if self.x >= screen_width - 200 - self.width and self.y < screen_height:
             self.y += self.speed
-
-
-
-
     def draw(self,screen):
         pg.draw.rect(screen, self.colour, (self.x, self.y, self.width, self.height))
+
+    class Tower():
+        def __init__(self,x,y):
+            self.width = 30
+            self.height = 30
+            self.x = x
+            self.y = y
+    class Bullet:
+        def __init__(self,x,y,vel_x,vel_y,damage):
+            self.vel_x = vel_x
+            self.vel_y = vel_y
+            self.damage = damage
+            self.x = x
+            self.y = y
+            self.width = 5
+            self.height = 5
+            self.rect = pg.Rect(self.x,self.y,self.width,self.height)
 
 
 running = True
