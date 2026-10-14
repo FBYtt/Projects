@@ -59,9 +59,8 @@ class Bullet:
         self.colour = colour
         self.x = x
         self.y = y
-        self.width = 5
-        self.height = 5
-        self.rect = pg.Rect(self.x,self.y,self.width,self.height)
+        self.width = 8
+        self.height = 8
     def move(self,minion):
         if self.y > minion.y + minion.height / 2:
             self.y -= self.vel_y
@@ -74,7 +73,10 @@ class Bullet:
     def draw(self,screen):
         pg.draw.circle(screen,self.colour, (self.x, self.y), self.width, self.height)
     def check_collision(self,minion):
+        minion.rect = pg.Rect(minion.x,minion.y,minion.width,minion.height)
+        self.rect = pg.Rect(self.x,self.y,self.width,self.height)
         if self.rect.colliderect(minion.rect):
+
             minion.health -= self.damage
             return True
         else:
@@ -106,21 +108,24 @@ while running:
         tower.draw(screen)
 
         if seconds >= 1:
-            minions.append(Monster(200, 100, 100, 7, screen_height))
+            minions.append(Monster(100, 100, 100, 3, screen_height))
             seconds = 0
-            print(len(minions))
+            print(f"Nr of minions: {len(minions)}")
 
         for minion in minions[:]:
             minion.move()
             minion.draw(screen)
             if minion.x >= screen_width - 200 - minion.width and minion.y >= screen_height:
                 minions.remove(minion)
+            if minion.health <= 0:
+                minions.remove(minion)
 
-        if len(minions) > 0 and shoot_timer > 1:
-            bullets.append(Bullet(tower.x,tower.y,15,15,10,(0,0,0)))
-            shoot_timer = 0
-        else:
-            pass
+        if len(minions) > 0 and shoot_timer % 0.5 >= 0.485:
+            bullets.append(Bullet(tower.x,tower.y,30,30,20,(0,0,0)))
+
+        elif len(minions) <=0:
+            del bullets[::]
+
         for bullet in bullets[:]:
             bullet.move(minions[0])
             bullet.draw(screen)
