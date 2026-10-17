@@ -1,5 +1,5 @@
 import pygame as pg
-
+import math
 pg.init()
 screen_width = pg.display.get_desktop_sizes()[0][0]
 screen_height = pg.display.get_desktop_sizes()[0][1]
@@ -28,13 +28,17 @@ class Monster:
         self.x = 200
         self.y = y
         self.rect = pg.Rect(self.x,self.y,self.width,self.height)
+        self.state = 0
     def move(self):
         if self.y >= screen_height / 3 and self.x == 200:
             self.y -= self.speed
+            self.state = 1
         if self.y <= screen_height / 3 and self.x <= screen_width - 200:
             self.x += self.speed
+            self.state = 2
         if self.x >= screen_width - 200 - self.width and self.y < screen_height:
             self.y += self.speed
+            self.state = 3
     def draw(self,screen):
         pg.draw.rect(screen, self.colour, (self.x, self.y, self.width, self.height))
 
@@ -47,6 +51,12 @@ class Tower():
         self.y = y
         self.colour = colour
         self.shoot_speed = shoot_speed
+        self.timer = 0
+    def calculate(self,minion):
+        dx = (minion.x + minion.width/2) - (self.x+self.width/2)
+        dy = (minion.y + minion.height/2) - (self.y+self.height/2)
+        distance = math.sqrt(dx**2 + dy**2)
+        return distance
     def draw(self,screen):
         pg.draw.rect(screen,self.colour, (self.x, self.y, self.width, self.height))
 
@@ -70,6 +80,9 @@ class Bullet:
             self.x -= self.vel_x
         if self.x < minion.x + minion.width / 2:
             self.x += self.vel_x
+    def move_better(self,minion,tower):
+        if minion.state == 1:
+            pass
     def draw(self,screen):
         pg.draw.circle(screen,self.colour, (self.x, self.y), self.width, self.height)
     def check_collision(self,minion):
@@ -121,8 +134,8 @@ while running:
                 minions.remove(minion)
 
         if len(minions) > 0 and shoot_timer % 0.5 >= 0.485:
-            bullets.append(Bullet(tower.x,tower.y,30,30,20,(0,0,0)))
-
+            bullets.append(Bullet(tower.x + tower.width/2,tower.y + tower.height/2,30,30,20,(0,0,0)))
+            tower.calculate(minions[0])
         elif len(minions) <=0:
             del bullets[::]
 
