@@ -15,6 +15,9 @@ bullets = []
 seconds = 0
 lives = 3
 shoot_timer = 0
+small_font = 20
+#Fonts
+font = pg.font.SysFont("comicsans", int(small_font))
 
 
 
@@ -23,7 +26,7 @@ class Monster:
         self.health = health
         self.width = width
         self.height = height
-        self.colour = (255,0,0)
+        self.colour = (35,35,35)
         self.speed = speed
         self.x = 200
         self.y = y
@@ -41,6 +44,8 @@ class Monster:
             self.state = 3
     def draw(self,screen):
         pg.draw.rect(screen, self.colour, (self.x, self.y, self.width, self.height))
+        health = font.render(str(self.health), True, (255,255,255))
+        screen.blit(health,(self.x + self.width /3,self.y + self.height))
 
 
 class Tower():
@@ -55,10 +60,12 @@ class Tower():
     def calculate(self,minion):
         dx = (minion.x + minion.width/2) - (self.x+self.width/2)
         dy = (minion.y + minion.height/2) - (self.y+self.height/2)
-        distance = math.sqrt(dx**2 + dy**2)
+        distance = math.hypot(dx,dy)
         return distance
     def draw(self,screen):
         pg.draw.rect(screen,self.colour, (self.x, self.y, self.width, self.height))
+    def shoot(self,bullets):
+        pass
 
 
 class Bullet:
@@ -117,11 +124,11 @@ while running:
     if not paused:
         seconds += clock.tick(60) / 1000
         shoot_timer += clock.tick(60) / 1000
-        screen.fill((50, 0, 0))
+        screen.fill((120, 120, 200))
         tower.draw(screen)
 
         if seconds >= 1:
-            minions.append(Monster(100, 100, 100, 3, screen_height))
+            minions.append(Monster(10100, 100, 100, 3, screen_height))
             seconds = 0
             print(f"Nr of minions: {len(minions)}")
 
@@ -134,7 +141,7 @@ while running:
                 minions.remove(minion)
 
         if len(minions) > 0 and shoot_timer % 0.5 >= 0.485:
-            bullets.append(Bullet(tower.x + tower.width/2,tower.y + tower.height/2,30,30,20,(0,0,0)))
+            bullets.append(Bullet(tower.x + tower.width/2,tower.y + tower.height/2,30,30,20,(140,0,0)))
             tower.calculate(minions[0])
         elif len(minions) <=0:
             del bullets[::]
