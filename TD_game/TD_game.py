@@ -58,17 +58,22 @@ class Tower():
         self.shoot_speed = shoot_speed
         self.time_passed = 0
     def calculate(self,minion):
-        dx = ((minion[0].x + minion[0].width/2) - (self.x+self.width/2)) / 60
-        dy = ((minion[0].y + minion[0].height/2) - (self.y+self.height/2)) / 60
-        if minions[0].state == 1:
+
+        if minion[0].state == 1:
+            dx = ((minion[0].x + minion[0].width / 2) - (self.x + self.width / 2)) / 60
+            dy = ((minion[0].y + minion[0].height / 3) - (self.y + self.height / 2)) / 60
             vel_x = (dx * -1) / 0.2
-            vel_y = (dy * -1) / 0.2 + minions[0].speed
-        if minions[0].state == 2:
-            vel_x = ((dx * -1) / 0.2) * 1.15
-            vel_y = ((dy * -1) / 0.2) * 1.15
-        if minions[0].state == 3:
-            vel_x = ((dx * -1) / 0.2) * 1.3
-            vel_y = ((dy * -1) / 0.2) * 1.3
+            vel_y = (dy * -1) / 0.2
+        if minion[0].state == 2:
+            dx = ((minion[0].x + minion[0].width/1.5) - (self.x + self.width / 2)) / 60
+            dy = ((minion[0].y + minion[0].height / 2) - (self.y + self.height / 2)) / 60
+            vel_x = ((dx * -1) / 0.2)
+            vel_y = ((dy * -1) / 0.2)
+        if minion[0].state == 3:
+            dx = ((minion[0].x + minion[0].width / 2) - (self.x + self.width / 2)) / 60
+            dy = ((minion[0].y + minion[0].height) - (self.y + self.height / 2)) / 60
+            vel_x = ((dx * -1) / 0.2)
+            vel_y = ((dy * -1) / 0.2)
         return vel_x, vel_y
     def draw(self,screen):
         pg.draw.rect(screen,self.colour, (self.x, self.y, self.width, self.height))
@@ -92,17 +97,10 @@ class Bullet:
         self.y = y
         self.width = 8
         self.height = 8
-    def move(self,minion):
-        if minions[0].state == 1 :
-            self.y -= self.vel_y
-            self.x -= self.vel_x
-        if minions[0].state == 2:
-            self.y -= self.vel_y
-            self.x -= self.vel_x
-        if minions[0].state == 3:
-            self.y -= self.vel_y
-            self.x -= self.vel_x
 
+    def move(self):
+            self.y -= self.vel_y
+            self.x -= self.vel_x
 
     def draw(self,screen):
         pg.draw.circle(screen,self.colour, (self.x, self.y), self.width, self.height)
@@ -131,8 +129,8 @@ while running:
             if event.key == pg.K_ESCAPE:
                 paused = not paused
             if event.key == pg.K_SPACE:
-                del minions[::]
-                del bullets[::]
+                list.clear(minions)
+                list.clear(bullets)
             if event.key == pg.K_DELETE:
                 pass
 
@@ -144,7 +142,7 @@ while running:
         tower2.draw(screen)
         tower2.shoot(dt)
         if seconds >= 1:
-            minions.append(Monster(100, 100, 100, 5, screen_height))
+            minions.append(Monster(100, 100, 100, 2, screen_height))
             seconds = 0
             print(f"Nr of minions: {len(minions)}")
 
@@ -159,14 +157,14 @@ while running:
 
         for bullet in bullets[:]:
             if len(minions) != 0:
-                bullet.move(minions[0])
+                bullet.move()
                 bullet.draw(screen)
                 if bullet.check_collision(minions[0]):
                     bullets.remove(bullet)
-                if bullet.y < screen_height / 3 or bullet.x < 200 or bullet.x > screen_width - 200:
+                elif bullet.y < screen_height / 3 or bullet.x < 200 or bullet.x > screen_width - 200:
                     bullets.remove(bullet)
             if len(minions) == 0:
-                del bullets[::]
+                list.clear(bullets)
 
 
 
