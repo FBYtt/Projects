@@ -45,7 +45,7 @@ class Monster:
     def draw(self,screen):
         pg.draw.rect(screen, self.colour, (self.x, self.y, self.width, self.height))
         health = font.render(str(self.health), True, (255,255,255))
-        screen.blit(health,(self.x + self.width /3,self.y + self.height))
+        screen.blit(health,(self.x + self.width /3,self.y + self.height - 10))
 
 
 class Tower():
@@ -56,16 +56,35 @@ class Tower():
         self.y = y
         self.colour = colour
         self.shoot_speed = shoot_speed
-        self.timer = 0
+        self.time_passed = 0
     def calculate(self,minion):
-        dx = (minion.x + minion.width/2) - (self.x+self.width/2)
-        dy = (minion.y + minion.height/2) - (self.y+self.height/2)
-        distance = math.hypot(dx,dy)
-        return distance
+
+        if minion[0].state == 1:
+            dx = ((minion[0].x + minion[0].width / 2) - (self.x + self.width / 2)) / 60
+            dy = ((minion[0].y + minion[0].height / 3) - (self.y + self.height / 2)) / 60
+            vel_x = (dx * -1) / 0.2
+            vel_y = (dy * -1) / 0.2
+        if minion[0].state == 2:
+            dx = ((minion[0].x + minion[0].width/1.5) - (self.x + self.width / 2)) / 60
+            dy = ((minion[0].y + minion[0].height / 2) - (self.y + self.height / 2)) / 60
+            vel_x = ((dx * -1) / 0.2)
+            vel_y = ((dy * -1) / 0.2)
+        if minion[0].state == 3:
+            dx = ((minion[0].x + minion[0].width / 2) - (self.x + self.width / 2)) / 60
+            dy = ((minion[0].y + minion[0].height) - (self.y + self.height / 2)) / 60
+            vel_x = ((dx * -1) / 0.2)
+            vel_y = ((dy * -1) / 0.2)
+        return vel_x, vel_y
     def draw(self,screen):
         pg.draw.rect(screen,self.colour, (self.x, self.y, self.width, self.height))
-    def shoot(self,bullets):
-        pass
+    def shoot(self,dt):
+        if self.time_passed < self.shoot_speed:
+            self.time_passed += dt
+        if self.time_passed >= self.shoot_speed and len(minions) > 0:
+            bullets.append(Bullet(self.x + self.width/2,self.y + self.height/2,self.calculate(minions)[0],self.calculate(minions)[1],20,(140,0,0)))
+            self.time_passed = 0
+
+
 
 
 class Bullet:
@@ -78,18 +97,11 @@ class Bullet:
         self.y = y
         self.width = 8
         self.height = 8
-    def move(self,minion):
-        if self.y > minion.y + minion.height / 2:
+
+    def move(self):
             self.y -= self.vel_y
-        if self.y < minion.y + minion.height / 2:
-            self.y += self.vel_y
-        if self.x > minion.x + minion.width / 2:
             self.x -= self.vel_x
-        if self.x < minion.x + minion.width / 2:
-            self.x += self.vel_x
-    def move_better(self,minion,tower):
-        if minion.state == 1:
-            pass
+
     def draw(self,screen):
         pg.draw.circle(screen,self.colour, (self.x, self.y), self.width, self.height)
     def check_collision(self,minion):
@@ -103,8 +115,8 @@ class Bullet:
             return False
 
 
-tower = Tower(screen_width/2,screen_height/1.2,(255,255,255),5)
-bullet = Bullet(screen_width/2,screen_height/1.2,5,5,10,(0,0,0))
+tower = Tower(screen_width/2,screen_height/1.1,(255,255,255),0.5)
+tower2 = Tower(screen_width/2 + 100,screen_height/1.1,(255,255,255),0.5)
 running = True
 paused = False
 while running:
@@ -117,18 +129,20 @@ while running:
             if event.key == pg.K_ESCAPE:
                 paused = not paused
             if event.key == pg.K_SPACE:
-                minions.append(Monster(200,100,100,7,screen_height))
+                list.clear(minions)
+                list.clear(bullets)
             if event.key == pg.K_DELETE:
                 pass
-    tower.draw(screen)
+
     if not paused:
-        seconds += clock.tick(60) / 1000
-        shoot_timer += clock.tick(60) / 1000
+        dt = clock.tick(60) / 1000
+        seconds += dt
         screen.fill((120, 120, 200))
         tower.draw(screen)
-
+        tower2.draw(screen)
+        tower2.shoot(dt)
         if seconds >= 1:
-            minions.append(Monster(10100, 100, 100, 3, screen_height))
+            minions.append(Monster(100, 100, 100, 2, screen_height))
             seconds = 0
             print(f"Nr of minions: {len(minions)}")
 
@@ -139,18 +153,18 @@ while running:
                 minions.remove(minion)
             if minion.health <= 0:
                 minions.remove(minion)
-
-        if len(minions) > 0 and shoot_timer % 0.5 >= 0.485:
-            bullets.append(Bullet(tower.x + tower.width/2,tower.y + tower.height/2,30,30,20,(140,0,0)))
-            tower.calculate(minions[0])
-        elif len(minions) <=0:
-            del bullets[::]
+        tower.shoot(dt)
 
         for bullet in bullets[:]:
-            bullet.move(minions[0])
-            bullet.draw(screen)
-            if bullet.check_collision(minions[0]):
-                bullets.remove(bullet)
+            if len(minions) != 0:
+                bullet.move()
+                bullet.draw(screen)
+                if bullet.check_collision(minions[0]):
+                    bullets.remove(bullet)
+                elif bullet.y < screen_height / 3 or bullet.x < 200 or bullet.x > screen_width - 200:
+                    bullets.remove(bullet)
+            if len(minions) == 0:
+                list.clear(bullets)
 
 
 
