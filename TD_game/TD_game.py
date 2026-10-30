@@ -1,5 +1,5 @@
 import pygame as pg
-import math
+
 pg.init()
 screen_width = pg.display.get_desktop_sizes()[0][0]
 screen_height = pg.display.get_desktop_sizes()[0][1]
