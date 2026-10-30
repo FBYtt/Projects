@@ -47,7 +47,10 @@ class Ball():
         pg.draw.circle(screen, (57, 255, 20), (int(self.x), int(self.y)), ball_radius,int(ball_outline))
 
     def check_collision(self,paddle_left, paddle_right,score_left,score_right):
-        if self.x >= screen_width - self.width - paddle_right.width and self.y + self.height >= paddle_right.y and self.y <= paddle_right.y + paddle_right.height and self.vel_x > 0:
+        self.rect = pg.Rect(self.x, self.y, self.width, self.height)
+        paddle_right.rect = pg.Rect(paddle_right.x, paddle_right.y, paddle_right.width, paddle_right.height)
+        paddle_left.rect = pg.Rect(paddle_left.x,paddle_left.y,paddle_left.width, paddle_left.height)
+        if self.rect.colliderect(paddle_right.rect) and self.vel_x > 0:
             if self.vel_x <= 1800 :
                 self.vel_x += 120
                 self.vel_x *= -1
@@ -59,7 +62,7 @@ class Ball():
             score_left += 1
             self.y = screen_height / 2
             self.x = screen_width / 2
-        if self.x <= 0 + self.width + paddle_left.width and self.y + self.height >= paddle_left.y and self.y <= paddle_left.y + paddle_left.height and self.vel_x < 0:
+        if self.rect.colliderect(paddle_left.rect) and self.vel_x < 0:
             if self.vel_x <= 1800:
                 self.vel_x -= 120
                 self.vel_x *= -1
