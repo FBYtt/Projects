@@ -1,5 +1,6 @@
 import pygame as pg
 
+
 pg.init()
 screen_width = pg.display.get_desktop_sizes()[0][0]
 screen_height = pg.display.get_desktop_sizes()[0][1]
@@ -16,10 +17,15 @@ seconds = 0
 lives = 3
 shoot_timer = 0
 small_font = 20
+dice_scale = 0.3
+game_state = "playing"
+pip = 7
+colour = "red"
 #Fonts
 font = pg.font.SysFont("comicsans", int(small_font))
 
-
+#images
+basic_dice_image = pg.image.load(f"dice_set/{colour}/{colour}_{pip}.png")
 
 class Monster:
     def __init__(self,health,width,height,speed,y):
@@ -48,42 +54,46 @@ class Monster:
         screen.blit(health,(self.x + self.width /3,self.y + self.height - 10))
 
 
-class Tower():
-    def __init__(self,x,y,colour,shoot_speed):
+class Dice():
+    def __init__(self,x,y,image,shoot_speed,scale):
         self.width = 50
         self.height = 50
+        width = image.get_width()
+        height = image.get_height()
         self.x = x
         self.y = y
-        self.colour = colour
+        self.image = pg.transform.scale(image,(int(width * scale),int(height * scale)))
         self.shoot_speed = shoot_speed
         self.time_passed = 0
+        self.rect = self.image.get_rect()
+        self.rect.center = (x, y)
     def calculate(self,minion):
 
         if minion[0].state == 1:
-            dx = ((minion[0].x + minion[0].width / 2) - (self.x + self.width / 2)) / 60
-            dy = ((minion[0].y + minion[0].height / 3) - (self.y + self.height / 2)) / 60
+            dx = ((minion[0].x + minion[0].width / 2) - self.x) / 60
+            dy = ((minion[0].y + minion[0].height / 3) - self.y) / 60
             vel_x = (dx * -1) / 0.2
             vel_y = (dy * -1) / 0.2
         if minion[0].state == 2:
-            dx = ((minion[0].x + minion[0].width/1.5) - (self.x + self.width / 2)) / 60
-            dy = ((minion[0].y + minion[0].height / 2) - (self.y + self.height / 2)) / 60
+            dx = ((minion[0].x + minion[0].width/1.5) - self.x) / 60
+            dy = ((minion[0].y + minion[0].height / 2) - self.y) / 60
             vel_x = ((dx * -1) / 0.2)
             vel_y = ((dy * -1) / 0.2)
         if minion[0].state == 3:
-            dx = ((minion[0].x + minion[0].width / 2) - (self.x + self.width / 2)) / 60
-            dy = ((minion[0].y + minion[0].height) - (self.y + self.height / 2)) / 60
+            dx = ((minion[0].x + minion[0].width / 2) - self.x) / 60
+            dy = ((minion[0].y + minion[0].height) - self.y) / 60
             vel_x = ((dx * -1) / 0.2)
             vel_y = ((dy * -1) / 0.2)
         return vel_x, vel_y
     def draw(self,screen):
-        pg.draw.rect(screen,self.colour, (self.x, self.y, self.width, self.height))
+        # pg.draw.rect(screen,self.image, (self.x, self.y, self.width, self.height))
+        screen.blit(self.image,self.rect)
     def shoot(self,dt):
         if self.time_passed < self.shoot_speed:
             self.time_passed += dt
         if self.time_passed >= self.shoot_speed and len(minions) > 0:
-            bullets.append(Bullet(self.x + self.width/2,self.y + self.height/2,self.calculate(minions)[0],self.calculate(minions)[1],20,(140,0,0)))
+            bullets.append(Bullet(self.x ,self.y ,self.calculate(minions)[0],self.calculate(minions)[1],20,(140,0,0)))
             self.time_passed = 0
-
 
 
 
@@ -115,8 +125,11 @@ class Bullet:
             return False
 
 
-tower = Tower(screen_width/2,screen_height/1.1,(255,255,255),0.5)
-tower2 = Tower(screen_width/2 + 100,screen_height/1.1,(255,255,255),0.5)
+
+
+dice1 = Dice(screen_width/2,screen_height/1.1,basic_dice_image,0.5,dice_scale)
+dice2 = Dice(screen_width/2 + 100,screen_height/1.1,basic_dice_image,0.5,dice_scale)
+dices = [dice1,dice2]
 running = True
 paused = False
 while running:
@@ -134,37 +147,37 @@ while running:
             if event.key == pg.K_DELETE:
                 pass
 
-    if not paused:
-        dt = clock.tick(60) / 1000
-        seconds += dt
-        screen.fill((120, 120, 200))
-        tower.draw(screen)
-        tower2.draw(screen)
-        tower2.shoot(dt)
-        if seconds >= 1:
-            minions.append(Monster(100, 100, 100, 2, screen_height))
-            seconds = 0
-            print(f"Nr of minions: {len(minions)}")
+    if game_state == "playing":
+        if not paused:
+            dt = clock.tick(60) / 1000
+            seconds += dt
+            screen.fill((120, 120, 200))
+            for dice in dices:
+                dice.draw(screen)
+                dice.shoot(dt)
+            if seconds >= 1:
+                minions.append(Monster(100, 100, 100, 2, screen_height))
+                seconds = 0
+                print(f"Nr of minions: {len(minions)}")
 
-        for minion in minions[:]:
-            minion.move()
-            minion.draw(screen)
-            if minion.x >= screen_width - 200 - minion.width and minion.y >= screen_height:
-                minions.remove(minion)
-            if minion.health <= 0:
-                minions.remove(minion)
-        tower.shoot(dt)
+            for minion in minions[:]:
+                minion.move()
+                minion.draw(screen)
+                if minion.x >= screen_width - 200 - minion.width and minion.y >= screen_height:
+                    minions.remove(minion)
+                if minion.health <= 0:
+                    minions.remove(minion)
 
-        for bullet in bullets[:]:
-            if len(minions) != 0:
-                bullet.move()
-                bullet.draw(screen)
-                if bullet.check_collision(minions[0]):
-                    bullets.remove(bullet)
-                elif bullet.y < screen_height / 3 or bullet.x < 200 or bullet.x > screen_width - 200:
-                    bullets.remove(bullet)
-            if len(minions) == 0:
-                list.clear(bullets)
+            for bullet in bullets[:]:
+                if len(minions) != 0:
+                    bullet.move()
+                    bullet.draw(screen)
+                    if bullet.check_collision(minions[0]):
+                        bullets.remove(bullet)
+                    elif bullet.y < screen_height / 3 or bullet.x < 200 or bullet.x > screen_width - 200:
+                        bullets.remove(bullet)
+                if len(minions) == 0:
+                    list.clear(bullets)
 
 
 

@@ -415,29 +415,29 @@ def reset():
 
 font = pg.font.SysFont("arial", 26,bold=True)
 big_font = pg.font.SysFont("arial", 90,bold=True)
-deal_image = pg.image.load("../img/deal_button.png")
-chip_5 = pg.image.load("../img/bet_chip_5.png")
-chip_10 = pg.image.load("../img/bet_chip_10.png")
-chip_25 = pg.image.load("../img/bet_chip_25.png")
-chip_50 = pg.image.load("../img/bet_chip_50.png")
-hit_image = pg.image.load("../img/hit_button.png")
-money_image = pg.image.load("../img/money_button.png")
-stand_image = pg.image.load("../img/stand_button.png")
-double_image = pg.image.load("../img/double_button.png")
-reset_image = pg.image.load("../img/reset_button.png")
-bet_image = pg.image.load("../img/bet_button.png")
-all_in_image = pg.image.load("../img/bet_chip_all_in.png")
-chip_clear_image = pg.image.load("../img/bet_chip_clear.png")
-split_image = pg.image.load("../img/split_button.png")
-arrow_image = pg.image.load("../img/arrow.png")
-split_bet_image = pg.image.load("../img/split_bet_button.png")
+deal_image = pg.image.load("img/deal_button.png")
+chip_5 = pg.image.load("img/bet_chip_5.png")
+chip_10 = pg.image.load("img/bet_chip_10.png")
+chip_25 = pg.image.load("img/bet_chip_25.png")
+chip_50 = pg.image.load("img/bet_chip_50.png")
+hit_image = pg.image.load("img/hit_button.png")
+money_image = pg.image.load("img/money_button.png")
+stand_image = pg.image.load("img/stand_button.png")
+double_image = pg.image.load("img/double_button.png")
+reset_image = pg.image.load("img/reset_button.png")
+bet_image = pg.image.load("img/bet_button.png")
+all_in_image = pg.image.load("img/bet_chip_all_in.png")
+chip_clear_image = pg.image.load("img/bet_chip_clear.png")
+split_image = pg.image.load("img/split_button.png")
+arrow_image = pg.image.load("img/arrow.png")
+split_bet_image = pg.image.load("img/split_bet_button.png")
 class Cards:
     def __init__(self,rank,suit,x,y,hidden):
         self.rank = rank
         self.suit = suit
         self.hidden = hidden
-        if hidden == 1:
-            self.image = pg.image.load("../img/back.png")
+        if self.hidden:
+            self.image = pg.image.load("img/back.png")
         else:
             self.image = pg.image.load(f"img/{rank}{suit}.png")
         self.card = self.rank + self.suit
