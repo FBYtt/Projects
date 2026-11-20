@@ -1,4 +1,5 @@
 import pygame as pg
+import random
 
 
 pg.init()
@@ -109,8 +110,9 @@ class Bullet:
         self.height = 8
 
     def move(self):
-            self.y -= self.vel_y
-            self.x -= self.vel_x
+        self.y -= self.vel_y
+        self.x -= self.vel_x
+
 
     def draw(self,screen):
         pg.draw.circle(screen,self.colour, (self.x, self.y), self.width, self.height)
@@ -124,6 +126,23 @@ class Bullet:
         else:
             return False
 
+class Button:
+    def __init__(self,x,y,width,height,name):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.colour = (255,255,255)
+        self.rect = pg.Rect(self.x,self.y,self.width,self.height)
+        self.name = name
+    def draw(self,screen):
+        pg.draw.rect(screen,self.colour,self.rect)
+    def is_clicked(self,event):
+        if event.type == pg.MOUSEBUTTONDOWN:
+            return self.rect.collidepoint(event.pos)
+        return False
+
+
 
 
 
@@ -132,6 +151,8 @@ dice2 = Dice(screen_width/2 + 100,screen_height/1.1,basic_dice_image,0.5,dice_sc
 dices = [dice1,dice2]
 running = True
 paused = False
+button_test = Button(500,500,50,50,"test")
+buttons = [button_test]
 while running:
     for event in pg.event.get():
         if event.type == pg.QUIT:
@@ -146,17 +167,22 @@ while running:
                 list.clear(bullets)
             if event.key == pg.K_DELETE:
                 pass
-
+        for button in buttons:
+            if button.is_clicked(event) and button.name == "test" and len(dices) < 15:
+                dices.append(Dice(random.randint(200,screen_width-200),random.randint(int(screen_height / 3),screen_height),basic_dice_image,0.5,dice_scale))
     if game_state == "playing":
         if not paused:
             dt = clock.tick(60) / 1000
             seconds += dt
             screen.fill((120, 120, 200))
+            for button in buttons:
+                button.draw(screen)
+
             for dice in dices:
                 dice.draw(screen)
                 dice.shoot(dt)
             if seconds >= 1:
-                minions.append(Monster(100, 100, 100, 2, screen_height))
+                minions.append(Monster(1000, 100, 100, 2, screen_height))
                 seconds = 0
                 print(f"Nr of minions: {len(minions)}")
 
@@ -167,6 +193,7 @@ while running:
                     minions.remove(minion)
                 if minion.health <= 0:
                     minions.remove(minion)
+                    list.clear(bullets)
 
             for bullet in bullets[:]:
                 if len(minions) != 0:
